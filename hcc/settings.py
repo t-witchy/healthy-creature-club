@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-r9x9)*&1!*9-07^*^&4ir7+7*r-(y=&0o1gbg(*bqw=qi8828w
 DEBUG = False
 
 ALLOWED_HOSTS = [
+    'healthy-creature-club-f1567883ebea.herokuapp.com',
     '127.0.0.1',    # Localhost
     'localhost',    # Localhost
 ]
