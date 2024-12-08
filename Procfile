@@ -1,0 +1,1 @@
+web: python manage.py collectstatic --noinput && gunicorn hcc.wsgi --log-file -
