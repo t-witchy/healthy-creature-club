@@ -1,14 +1,36 @@
 from django import forms
 from .models import CustomUser
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SignupForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    password_confirm = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Password',  # Add placeholder for password
+            'class': 'block w-full bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 sm:text-sm',
+        })
+    )
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Confirm Password',  # Add placeholder for confirm password
+            'class': 'block w-full rounded-b-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 sm:text-sm',
+        }),
+        label="Confirm Password"
+    )
 
     class Meta:
         model = CustomUser
         fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Email address',  # Add placeholder for email
+                'class': 'block w-full rounded-t-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 sm:text-sm',
+            }),
+        }
 
     def clean_password_confirm(self):
         password = self.cleaned_data.get("password")
@@ -23,3 +45,43 @@ class SignupForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class EmailLoginForm(AuthenticationForm):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Email address',
+            'class': 'block w-full rounded-t-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 sm:text-sm',
+        }),
+        label="Email"
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Password',
+            'class': 'block w-full rounded-b-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 sm:text-sm',
+        }),
+        label="Password"
+    )
+
+    def clean(self):
+        # Retrieve cleaned data
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        logger.info(f"Attempting to authenticate user with email: {email}")
+
+        # Authenticate user with email
+        user = authenticate(self.request, email=email, password=password)
+        if user is None:
+            logger.warning(f"Authentication failed for email: {email}")
+            raise forms.ValidationError("Invalid email or password.")
+
+        logger.info(f"Authentication successful for email: {email}")
+        self.user = user
+        return self.cleaned_data
+
+    def get_user(self):
+        return self.user
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)

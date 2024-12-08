@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 	<head>
-    <title>Healthy Creature Club</title>
+    <title>Healthy Kitty Club</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -41,6 +41,13 @@
 								</div>
 							</button>
 						</div>
+                        <!-- Logout Button -->
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="ml-3 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
