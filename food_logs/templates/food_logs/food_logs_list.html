@@ -8,8 +8,6 @@
 {% block content %}
 
 <div class="px-4 sm:px-6 lg:px-8">
-  <h1 class="text-base font-semibold text-gray-900">Food Logs</h1>
-  <p class="mt-2 text-sm text-gray-700">Grouped by day with details of food logged.</p>
 
   {% for date, logs in grouped_logs.items %}
   <div class="mt-8">

@@ -145,3 +145,7 @@ def view_logs(request):
         grouped_logs[key] = list(group)
 
     return render(request, 'food_logs/food_logs_list.html', {'grouped_logs': grouped_logs})
+
+
+def test(request):
+    return render(request, 'food_logs/test.html', {})
