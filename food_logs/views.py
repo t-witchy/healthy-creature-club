@@ -3,14 +3,13 @@ import logging
 import openai
 import os
 import tempfile
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from pydub import AudioSegment
 from django.shortcuts import render
 from .models import FoodLog, Unit
-
+from itertools import groupby
 
 load_dotenv()
 AudioSegment.converter = "/usr/local/bin/ffmpeg"
@@ -116,10 +115,33 @@ def transcribe_and_analyze(request):
             if not saved_food_logs:
                 return JsonResponse({"message": "No food logs could be saved."}, status=400)
 
+            # Calculate totals
+            total_calories = sum(item["calories"] for item in saved_food_logs)
+            total_protein = sum(item["protein"] for item in saved_food_logs)
+            total_carbs = sum(item["carbs"] for item in saved_food_logs)
+            total_fat = sum(item["fat"] for item in saved_food_logs)
+
+            message = f"Log created successfully for {transcript} " \
+                      f"Total: {total_calories} calories, {total_protein}g protein, " \
+                      f"{total_carbs}g carbs, {total_fat}g fat."
+
             # Respond with the saved food logs
-            return JsonResponse({"message": "Food logs created successfully.", "food_logs": saved_food_logs})
+            return JsonResponse({"message": message, "food_logs": saved_food_logs})
         except Exception as e:
             logger.error(f"Error during ChatGPT analysis: {str(e)}")
             return JsonResponse({"message": f"Error during ChatGPT analysis: {str(e)}"}, status=500)
 
     return JsonResponse({"message": "Invalid request"}, status=400)
+
+
+@login_required
+def view_logs(request):
+    # Query all FoodLog entries for the logged-in user
+    logs = FoodLog.objects.filter(user=request.user).order_by('-log_date')
+
+    # Group logs by day
+    grouped_logs = {}
+    for key, group in groupby(logs, key=lambda log: log.log_date.date()):
+        grouped_logs[key] = list(group)
+
+    return render(request, 'food_logs/food_logs_list.html', {'grouped_logs': grouped_logs})

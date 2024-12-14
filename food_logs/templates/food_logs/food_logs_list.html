@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Food Logs{% endblock %}
+
+{% block header %}Food Logs Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="px-4 sm:px-6 lg:px-8">
+  <h1 class="text-base font-semibold text-gray-900">Food Logs</h1>
+  <p class="mt-2 text-sm text-gray-700">Grouped by day with details of food logged.</p>
+
+  {% for date, logs in grouped_logs.items %}
+  <div class="mt-8">
+    <div class="bg-gray-50 p-4 rounded-md shadow-md">
+      <h2 class="text-lg font-semibold text-gray-800">
+        {{ date|date:"F j, Y" }} ({{ date|date:"l" }})
+      </h2>
+    </div>
+    <div class="mt-4 flow-root">
+      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Time
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Food Name
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Quantity (Unit)
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Calories
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Protein (g)
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for log in logs %}
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ log.log_date|date:"H:i" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {{ log.food_name }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ log.quantity }} {{ log.unit.name }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ log.calories }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ log.protein }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="mt-4 text-center text-gray-500">
+    <p>No logs found.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
